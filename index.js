@@ -67,12 +67,87 @@ const map = L.map('map');
     // zoom the map to the polygon
     map.fitBounds(polygon.getBounds());
 
-//restaurant recommendation markers
-// const pizza = L.marker([33.87478124282599, -117.8834178964772],{icon: redPin}).bindPopup('Pieology')
-// const kbbq = L.marker([33.872752059808775, -117.88986435792881],{icon: redPin}).bindPopup('Mr BBQ')
-// const shabu = L.marker([33.76100773284257, -117.83768246830293],{icon: redPin}).bindPopup('Shabu Shabu Bar')
-// const malay = L.marker([33.75906455195339, -117.82671753946761],{icon: redPin}).bindPopup('Belacan Grill - Malaysian Bistro')
-// const dumpling = L.marker(33.70776121390728, -117.8360862163415],{icon: redPin}).bindPopup('Din Tai Fung')
+// restaurant recommendation markers
+/*const pizza = L.marker([33.87478124282599, -117.8834178964772],{icon: redPin}).bindPopup('Pieology')
+const kbbq = L.marker([33.872752059808775, -117.88986435792881],{icon: redPin}).bindPopup('Mr BBQ')
+const shabu = L.marker([33.76100773284257, -117.83768246830293],{icon: redPin}).bindPopup('Shabu Shabu Bar')
+const malay = L.marker([33.75906455195339, -117.82671753946761],{icon: redPin}).bindPopup('Belacan Grill - Malaysian Bistro')
+const dumpling = L.marker(33.70776121390728, -117.8360862163415],{icon: redPin}).bindPopup('Din Tai Fung')
 const bbq = L.marker([33.65297186936441, -117.7386328377369]).bindPopup('Wood Ranch')
 
 const restaurant = L.layerGroup([pizza, kbbq, shabu, malay, dumpling, bbq]).addTo(map)
+
+const userMap = {
+    //Grab user location
+   userPosition: [],
+   userLocalMap:  {},
+   userMarker: {},
+   locations: [],
+   locationMarkers: {},
+
+   initializeMap() {
+       this.userLocalMap = L.map('map', {center: this.userPosition, zoom: 11,});
+   
+       // Add OpenStreetMap tiles:
+       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+           attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+           minZoom: '10',
+       }).addTo(this.userLocalMap)
+   
+       //Add user location marker
+       const marker = L.marker(this.userPosition)
+       marker.addTo(this.userLocalMap).bindPopup('<p1><b>Your are here</b></p1>').openPopup()
+   },
+
+   addBusinesLocations(){
+       this.locations.forEach((location) => {
+           userMap.locationMarkers = L.marker([location.lat, location.long])
+           userMap.locationMarkers.addTo(userMap.userLocalMap).bindPopup(`<p1><b>${location.name}</b></p1>`).openPopup()
+       })
+   },
+
+
+}
+
+//Wait for page load
+window.onload = async () => {
+    let coords = await getUserPosition()
+    userMap.userPosition = coords
+    userMap.initializeMap()
+}
+
+//Fetch Foursquare data via API
+async function getFoursquareData(category){
+    const options = {
+        method: 'GET',
+        headers: {
+        Accept: 'application/json',
+        Authorization: 'fsq3eRAeSflBeplmnMkHnAdQqcQJS8bvOIGgJXchlCZjE6g='
+        }
+    }
+    let lat = userMap.userPosition[0]
+    let long = userMap.userPosition[1]
+
+    
+    let response = await fetch(`https://api.foursquare.com/v3/places/search?ll=${lat}%2C${long}&radius=3000&query=${category}&limit=5`, options)
+    let data = await response.json()
+    let localBusinesses = data.results
+
+    return localBusinesses
+}
+
+
+let locationButtons = document.querySelectorAll(".locationButton")
+locationButtons.forEach((location) => { 
+    location.addEventListener('click', async () => {
+        let category = location.textContent;
+        let selectionData = await getFoursquareData(category)
+        
+        selectionData.forEach((location) => {
+            userMap.locations.push({name: location.name, lat: location.geocodes.main.latitude, long: location.geocodes.main.longitude})
+        })
+        userMap.addBusinesLocations()
+ 
+    })
+})
+*/
